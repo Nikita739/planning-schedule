@@ -2,9 +2,18 @@ require("dotenv").config();
 
 import express, { Express, Request, Response } from "express";
 import sequelize from './db';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 const app = express();
 const PORT: number = Number(process.env.PORT) || 4000;
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+    credentials: true,
+    origin: process.env.CLIENT_URL
+}));
 
 app.get('/', (req: Request, res: Response) => {
     res.send("Hello world");
