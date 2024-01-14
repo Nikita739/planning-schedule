@@ -1,3 +1,5 @@
+import errorMiddleware from "./middleware/errorMiddleware";
+
 require("dotenv").config();
 
 import express, { Express, Request, Response } from "express";
@@ -16,10 +18,7 @@ app.use(cors({
     origin: process.env.CLIENT_URL
 }));
 app.use('/api/v1', router);
-
-app.get('/', (req: Request, res: Response) => {
-    res.send("Hello world");
-});
+app.use(errorMiddleware);
 
 const start = async () => {
     try {
