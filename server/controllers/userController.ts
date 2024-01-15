@@ -1,30 +1,29 @@
 import {NextFunction, Request, Response} from 'express';
 import ApiError from "../exeptions/apiError";
 import RequestService from "../services/requestService";
-import authService from "../services/authService";
+import authService, {AuthResult} from "../services/authService";
 
 class UserController {
-    registration(req: Request, res: Response, next: NextFunction): void {
+    async registration(req: Request, res: Response, next: NextFunction): Promise<any> {
         try {
             const {username, email, password} = req.body;
 
-            // Check for missing parameters
-            // const paramsCheck = RequestService.checkMissingParams(req.body,
-            //     ["username", "email", "password"]
-            // );
-            // if(paramsCheck) {
-            //     return next(ApiError.BadRequest("Some parameters missing", paramsCheck));
-            // }
+            const paramsCheck = RequestService.checkMissingParams(req.body,
+                ["username", "email", "password"]
+            );
+            if(paramsCheck) {
+                return next(ApiError.BadRequest("Some parameters missing", paramsCheck));
+            }
 
-            const result = authService.registration(username, email, password);
-
-            res.send("REGISTRATION");
+            const userData: AuthResult = await authService.registration(username, email, password);
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            return res.json(userData);
         } catch (e) {
             next(e);
         }
     }
 
-    login(req: Request, res: Response): void {
+    async login(req: Request, res: Response): Promise<void> {
         res.send("LOGIN");
     }
 }

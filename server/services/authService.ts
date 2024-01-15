@@ -8,7 +8,7 @@ import {JwtPayload} from "jsonwebtoken";
 
 const {User} = Models;
 
-interface AuthResult {
+export interface AuthResult {
     user: IUserDto;
     accessToken: string;
     refreshToken: string;
@@ -22,7 +22,6 @@ export default new class AuthService {
         }
 
         const hashPassword = await bcrypt.hash(password, 4);
-        const activationLink = uuid.v4();
 
         const user: IUser = await User.create({username, email, password: hashPassword});
 
