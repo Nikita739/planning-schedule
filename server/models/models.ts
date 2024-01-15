@@ -4,7 +4,7 @@ import {DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOpti
 // @ts-nocheck
 
 export interface IUser extends Model<InferAttributes<IUser>, InferCreationAttributes<IUser>> {
-    id: number;
+    id: CreationOptional<number>;
     username: string;
     email: string;
     password: string;
