@@ -1,5 +1,7 @@
+import ApiError from "../exeptions/apiError";
+
 export default new class RequestService {
-    checkMissingParams(params: any, neededParams: string[]): null | string[] {
+    checkMissingParams(params: any, neededParams: string[]): void {
         const missingParams: string[] = [];
 
         for(let i = 0; i < neededParams.length; i++) {
@@ -8,6 +10,8 @@ export default new class RequestService {
             }
         }
 
-        return missingParams.length !== 0 ? missingParams : null;
+        if(missingParams.length !== 0) {
+            throw ApiError.BadRequest("Some parameters missing", missingParams);
+        }
     }
 }
