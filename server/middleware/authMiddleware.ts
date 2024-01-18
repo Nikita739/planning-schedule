@@ -2,7 +2,7 @@ import {Request, Response, NextFunction} from "express";
 import ApiError from "../exeptions/apiError";
 import tokenService from "../services/tokenService";
 
-export default async function (req: Request, res: Response, next: NextFunction) {
+export default async function (req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         let token = req.headers.authorization;
 
