@@ -1,0 +1,20 @@
+html, body, form, fieldset, table, tr, td, img {
+    margin: 0;
+    padding: 0;
+    font: 100%/150% Arial, sans-serif;
+}
+
+input, button, select, textarea, optgroup, option {
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+}
+
+.outer {
+    max-width: 90%;
+    margin: 20px auto 0;
+    border: rgb(141, 144, 149) solid 1px;
+    padding: 15px;
+    border-radius: 15px;
+}
