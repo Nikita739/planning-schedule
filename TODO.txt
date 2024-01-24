@@ -1,0 +1,5 @@
+Make footer and header
+In Home, make calendar
+Add Login, Registration in header
+Add minimal styling
+In Login, Registration add form validation
