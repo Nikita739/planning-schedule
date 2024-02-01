@@ -1,0 +1,18 @@
+.outer {
+    width: 100%;
+    border: 1px solid #000;
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.headerOptions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 20px;
+}

@@ -1,5 +1,4 @@
-Make footer and header
-In Home, make calendar
-Add Login, Registration in header
-Add minimal styling
-In Login, Registration add form validation
+Ограничить ввод событий для прошедших дат
+Сделать ячейки фикс. ширины
+Отцентровать таблицу
+Доделать серверную часть

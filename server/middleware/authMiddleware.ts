@@ -1,6 +1,10 @@
 import {Request, Response, NextFunction} from "express";
 import ApiError from "../exeptions/apiError";
 import tokenService from "../services/tokenService";
+import {IUserDto} from "../dtos/userDto";
+
+// When route is protected by the AuthMiddleware, use this instead of Request
+export type AuthRequest = Request & {user: IUserDto};
 
 export default async function (req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -21,7 +25,7 @@ export default async function (req: Request, res: Response, next: NextFunction):
             return next(ApiError.UnauthorizedError());
         }
 
-        req['user'] = userData;
+        res.locals.user = userData;
         next();
     } catch (e) {
         return next(ApiError.UnauthorizedError());

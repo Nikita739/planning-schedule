@@ -29,10 +29,28 @@ const Token = sequelize.define<IToken>("token", {
     userId: {type: DataTypes.BIGINT, allowNull: false}
 });
 
+export interface IEvent extends Model<InferAttributes<IEvent>, InferCreationAttributes<IEvent>> {
+    id: CreationOptional<number>;
+    name: string;
+    date: string;
+    userId: number;
+}
+
+const Event = sequelize.define<IEvent>("event", {
+    id: {type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true},
+    date: {type: DataTypes.DATE, allowNull: false},
+    name: {type: DataTypes.TEXT, allowNull: false},
+    userId: {type: DataTypes.BIGINT, allowNull: false}
+});
+
 User.hasMany(Token);
 Token.belongsTo(User);
 
+User.hasMany(Event);
+Event.belongsTo(User);
+
 export default {
     User,
-    Token
+    Token,
+    Event
 };

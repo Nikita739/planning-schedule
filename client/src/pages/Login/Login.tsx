@@ -7,12 +7,18 @@ import {useDispatch} from "react-redux";
 import {setCredentials} from "../../features/auth/authSlice";
 import {useLoginMutation} from "../../features/auth/authApiSlice";
 import {Dispatch} from "@reduxjs/toolkit";
+import Input from "../../UI/Input/Input";
+import {IFormValidationError, validateEmail, validatePassword} from "../../features/formValidation/formValidation";
+import Button from "../../UI/Button/Button";
 
 const Login = () => {
     const navigate = useNavigate();
 
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+
+    const [emailError, setEmailError] = useState<IFormValidationError>({result: true});
+    const [passwordError, setPasswordError] = useState<IFormValidationError>({result: true});
     const [errorMessage, setErrorMessage] = useState<string>("");
 
     const [login, {isLoading}] = useLoginMutation();
@@ -20,28 +26,50 @@ const Login = () => {
 
     useEffect(() => {
         setErrorMessage("");
+        setEmailError({result: true});
+        setPasswordError({result: true});
     }, [email, password]);
 
+    const validate = (): boolean => {
+        let res = true;
+
+        const emailValid = validateEmail(email);
+        if(!emailValid.result) {
+            res = false;
+            setEmailError(emailValid);
+        }
+
+        const passwordValid = validatePassword(password);
+        if(!passwordValid.result) {
+            res = false;
+            setPasswordError(passwordValid);
+        }
+
+        return res;
+    }
+
     const handleSubmit = async (): Promise<void> => {
-        try {
-            const loginData = await login({email, password}).unwrap();
-            console.log(loginData);
-            dispatch(setCredentials({
-                user: loginData.user,
-                accessToken: loginData.accessToken
-            }));
-            setEmail('');
-            setPassword('');
-            navigate('/');
-        } catch (err: any) {
-            if(!err?.response) {
-                setErrorMessage("Server doesn't respond");
-            } else if(err.response?.status === 400) {
-                setErrorMessage("Missing username or email");
-            } else if(err.response?.status === 401) {
-                setErrorMessage("Unauthorized");
-            } else {
-                setErrorMessage("Login failed");
+        if(validate()) {
+            try {
+                const loginData = await login({email, password}).unwrap();
+                console.log(loginData);
+                dispatch(setCredentials({
+                    user: loginData.user,
+                    accessToken: loginData.accessToken
+                }));
+                setEmail('');
+                setPassword('');
+                navigate('/');
+            } catch (err: any) {
+                if(!err) {
+                    setErrorMessage("Server doesn't respond");
+                } else if(err?.status === 400) {
+                    setErrorMessage("Missing username or email");
+                } else if(err?.status === 401) {
+                    setErrorMessage("Unauthorized");
+                } else {
+                    setErrorMessage("Login failed");
+                }
             }
         }
     }
@@ -62,23 +90,35 @@ const Login = () => {
 
                     <h1>Login</h1>
 
-                    <input
-                        type="email"
-                        placeholder="Enter your email"
-                        onChange={handleEmailInput}
-                        value={email}
-                    />
-                    <input
-                        type="password"
-                        placeholder="Enter your password"
-                        onChange={handlePasswordInput}
-                        value={password}
-                    />
-                    <button
+                    <div className={cl.inputPair}>
+                        <Input
+                            type="email"
+                            placeholder="Enter your email"
+                            onChange={handleEmailInput}
+                            value={email}
+                        />
+                        {!emailError.result
+                            &&
+                                <p>{emailError.message || "Email incorrect"}</p>
+                        }
+                    </div>
+                    <div className={cl.inputPair}>
+                        <Input
+                            type="password"
+                            placeholder="Enter your password"
+                            onChange={handlePasswordInput}
+                            value={password}
+                        />
+                        {!passwordError.result
+                            &&
+                                <p>{passwordError.message || "Password incorrect"}</p>
+                        }
+                    </div>
+                    <Button
                         onClick={handleSubmit}
                     >
                         Log in
-                    </button>
+                    </Button>
                 </div>
             }
         </div>
