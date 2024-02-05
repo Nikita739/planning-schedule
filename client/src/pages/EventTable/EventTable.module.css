@@ -4,8 +4,22 @@ table, th, td, tbody {
     margin: 0;
 }
 
+table {
+    margin: 0 auto;
+}
+
 th, td {
     padding: 10px 15px;
+    max-width: 12%;
+    width: 12%;
+}
+
+td:hover {
+    background-color: #d4f89d;
+}
+
+.outer {
+    width: 100%;
 }
 
 .activeDay {

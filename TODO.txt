@@ -1,4 +1,4 @@
-Ограничить ввод событий для прошедших дат
-Сделать ячейки фикс. ширины
-Отцентровать таблицу
-Доделать серверную часть
+Add Description field to event model
+
+
+// Done adding description field on server-side

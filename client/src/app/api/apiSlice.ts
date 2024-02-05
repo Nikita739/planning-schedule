@@ -1,6 +1,7 @@
 import {BaseQueryApi, createApi, FetchArgs, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {setCredentials, logOut, IUser} from "../../features/auth/authSlice";
 import {QueryArgs} from "@testing-library/react";
+import {RootState} from "../store";
 
 interface GetState {
     getState: () => any
@@ -24,9 +25,12 @@ interface IRefreshResultsData {
 const baseQuery = fetchBaseQuery({
     baseUrl: 'http://localhost:4000/api/v1',
     credentials: 'include',
-    prepareHeaders: (headers, {getState}: GetState) => {
-        const token = getState()?.auth?.token;
+    prepareHeaders: (headers, {getState}: any) => {
+        // const token = getState()?.auth?.token;
+        const token = (getState() as RootState).auth.accessToken
+        console.log("TOKEN ----------------- " + token)
         if(token) {
+            console.log("SET HEADER AUTH TO: " + token)
             headers.set("authorization", `Bearer ${token}`);
         }
         return headers;

@@ -32,6 +32,7 @@ const Token = sequelize.define<IToken>("token", {
 export interface IEvent extends Model<InferAttributes<IEvent>, InferCreationAttributes<IEvent>> {
     id: CreationOptional<number>;
     name: string;
+    description: string | null;
     date: string;
     userId: number;
 }
@@ -40,6 +41,7 @@ const Event = sequelize.define<IEvent>("event", {
     id: {type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true},
     date: {type: DataTypes.DATE, allowNull: false},
     name: {type: DataTypes.TEXT, allowNull: false},
+    description: {type: DataTypes.TEXT, allowNull: true, defaultValue: null},
     userId: {type: DataTypes.BIGINT, allowNull: false}
 });
 

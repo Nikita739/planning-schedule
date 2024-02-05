@@ -4,7 +4,7 @@ import ApiError from "../exeptions/apiError";
 const {Event} = models;
 
 class EventService {
-    async addEvent(name: string, date: Date, userId: number) {
+    async addEvent(name: string, date: string, userId: number, description?: string) {
         const eventWithSameDate = await Event.findOne({
             where: {
                 date: date
@@ -16,9 +16,10 @@ class EventService {
         }
 
         return await Event.create({
-            date: this.formatDate(date),
+            date: date,
             name: name,
-            userId: userId
+            userId: userId,
+            description: description
         });
     }
 
@@ -26,20 +27,6 @@ class EventService {
         return await Event.findAll({
             where: {userId: userId}
         });
-    }
-
-    formatDate(date: Date): string {
-        let datePart = [
-            date.getMonth() + 1,
-            date.getDate(),
-            date.getFullYear()
-        ].map((n, i) => n.toString().padStart(i === 2 ? 4 : 2, "0")).join("-");
-        let timePart = [
-            date.getHours(),
-            date.getMinutes(),
-            date.getSeconds()
-        ].map((n, i) => n.toString().padStart(2, "0")).join(":");
-        return datePart + " " + timePart;
     }
 }
 
