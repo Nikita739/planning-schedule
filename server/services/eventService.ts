@@ -23,6 +23,19 @@ class EventService {
         });
     }
 
+    async updateEvent(userId: number, eventId: number, name?: string, description?: string) {
+        const event = await Event.findOne({where: {id: eventId, userId: userId}});
+        if(!event) {
+            throw ApiError.BadRequest("Event with this id and userId is not found");
+        }
+
+        name && (event.name = name);
+        description && (event.description = description);
+
+        await event.save();
+        return event;
+    }
+
     async getEvents(userId: number) {
         return await Event.findAll({
             where: {userId: userId}

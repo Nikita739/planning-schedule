@@ -1,33 +1,57 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useLocation} from "react-router-dom";
 import {WeekDay} from "../../features/calendar/Calendar";
 import cl from './EventTable.module.css';
 import ModalWindow from "../../components/ModalWindow/ModalWindow";
 import AddEvent from "../../components/AddEvent/AddEvent";
+import {ScheduleEvent} from "../../features/event/eventService";
+import {useGetEventsMutation} from "../../features/event/eventApiSlice";
+import EditEvent from "../../components/EditEvent/EditEvent";
 
-interface ModalProps {
+interface AddEventProps {
     day: WeekDay,
     hour: number
 }
 
-export interface ScheduleEvent {
-    name: string,
-    date: Date,
-    hour: number
+interface UpdateEventProps {
+    day: WeekDay | null,
+    hour: number | null,
+    originalName: string,
+    originalDescription: string,
+    closeModal: () => any,
+    id: number,
+    reloadEvents: () => void
 }
 
 const EventTable = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [modalProps, setModalProps] = useState<ModalProps | null>(null);
+    const [addEventProps, setAddEventProps] = useState<AddEventProps | null>(null);
+    const [updateEventProps, setUpdateEventProps] = useState<UpdateEventProps | null>(null);
+
     const [events, setEvents] = useState<ScheduleEvent[]>([]);
 
     const location = useLocation();
 
-    const checkTask = (date: Date, hour: number) => {
+    const [getEvents, {isLoading}] = useGetEventsMutation();
+
+    useEffect(() => {
+        reloadEvents().then();
+    }, []);
+
+    const reloadEvents = async () => {
+        try {
+            const events: ScheduleEvent[] = await getEvents({}).unwrap();
+            setEvents(events);
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    const checkTask = (date: Date, hour: number): ScheduleEvent | null => {
         const filteredResponse = events.filter((el) => el.date.getDate() === date.getDate() && el.hour === hour);
 
         if(filteredResponse.length !== 0) {
-            return filteredResponse;
+            return filteredResponse[0];
         }
 
         return null;
@@ -35,12 +59,35 @@ const EventTable = () => {
 
     const generateP = (date: Date, hour: number) => {
         const res = checkTask(date, hour);
-        return res !== null ? res[0].name : " ";
+        return res !== null ? res.name : " ";
     }
 
     const openModal = (day: WeekDay, hour: number) => {
-        setIsModalOpen(true);
-        setModalProps({day, hour});
+        resetModal()
+
+        // If the event is already planned for this cell, then open Edit Event window
+        const isOccupied = checkTask(day.date, hour);
+        if(isOccupied) {
+            setIsModalOpen(true);
+            setUpdateEventProps({
+                day: day,
+                hour: hour,
+                originalName: isOccupied.name,
+                originalDescription: isOccupied.description || "",
+                closeModal: resetModal,
+                id: isOccupied.id,
+                reloadEvents
+            });
+        } else {
+            setIsModalOpen(true);
+            setAddEventProps({day, hour});
+        }
+    }
+
+    const resetModal = (): void => {
+        setIsModalOpen(false);
+        setAddEventProps(null);
+        setUpdateEventProps(null);
     }
 
     const addEvent = (newEvent: ScheduleEvent): void => {
@@ -70,7 +117,7 @@ const EventTable = () => {
                                     onClick={() => openModal(weekDay, index + 1)}
                                 >
                                     <p>
-                                        {generateP(weekDay.date, index + 1) || "Error"}
+                                        {checkTask(weekDay.date, index + 1)?.name || " "}
                                     </p>
                                 </td>
                             )}
@@ -78,13 +125,28 @@ const EventTable = () => {
                     )}
                 </tbody>
             </table>
-            {isModalOpen && modalProps
+            {isModalOpen && addEventProps
                 &&
                     <ModalWindow setIsOpen={setIsModalOpen}>
                         <AddEvent
-                            day={modalProps.day || null}
-                            hour={modalProps.hour || null}
-                            addEvent={addEvent}
+                            day={addEventProps?.day || null}
+                            hour={addEventProps?.hour || null}
+                            addEventToResponse={addEvent}
+                            closeModal={() => setIsModalOpen(false)}
+                        />
+                    </ModalWindow>
+            }
+            {isModalOpen && updateEventProps
+                &&
+                    <ModalWindow setIsOpen={setIsModalOpen}>
+                        <EditEvent
+                            day={updateEventProps.day}
+                            hour={updateEventProps.hour}
+                            originalName={updateEventProps.originalName}
+                            originalDescription={updateEventProps.originalDescription}
+                            closeModal={updateEventProps.closeModal}
+                            id={updateEventProps.id}
+                            reloadEvents={updateEventProps.reloadEvents}
                         />
                     </ModalWindow>
             }

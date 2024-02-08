@@ -1,4 +1,12 @@
-Add Description field to event model
+When user clicks on existing event, that didnt occure, open a window, where you can edit the event name and description
+There are 3 buttons, cancel, apply, delete event
+If event already occured, that window will only have a close button
 
 
-// Done adding description field on server-side
+
+
+
+Add start time, end time to AddEvent
+default: start - hour clicked, end - hour clicked + 1
+Block possibility to select time that has already passed
+Add possibility to delete event history

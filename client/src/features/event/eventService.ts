@@ -1,8 +1,23 @@
-import {ScheduleEvent} from "../../pages/EventTable/EventTable";
-
-interface EventServerResponse {
+export interface EventServerResponse {
     name: string,
-    date: string
+    description?: string,
+    date: string,
+    id: number
+}
+
+export interface ScheduleEvent {
+    name: string,
+    date: Date,
+    hour: number,
+    description?: string,
+    id: number
+}
+
+export interface RequestScheduleEvent {
+    name: string,
+    date: Date,
+    hour: number,
+    description?: string,
 }
 
 class EventService {
@@ -13,7 +28,9 @@ class EventService {
         return {
             name: res.name,
             date: date,
-            hour: hour
+            hour: hour,
+            description: res.description,
+            id: res.id
         };
     }
 }

@@ -9,11 +9,16 @@ export interface IEventData {
     description?: string;
 }
 
+export interface IUpdateEventData {
+    id: number;
+    name?: string;
+    description?: string;
+}
+
 class EventController {
     async addEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            let {name, description, date}: IEventData = req.body;
-
+            const {name, description, date}: IEventData = req.body;
             RequestService.checkMissingParams({name, date},
                 ["date", "name"]
             );
@@ -24,6 +29,22 @@ class EventController {
 
             const event = await eventService.addEvent(name, date, res.locals.user.id, description);
             return res.json(event);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async updateEvent(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {id, name, description}: IUpdateEventData = req.body;
+            const userId: number = res.locals.user.id;
+
+            RequestService.checkMissingParams({...req.body, userId: userId},
+                ["id", "userId"]
+            );
+
+            const updatedEvent = await eventService.updateEvent(userId, id, name, description);
+            res.json(updatedEvent);
         } catch (e) {
             next(e);
         }

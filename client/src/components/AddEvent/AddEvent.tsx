@@ -1,33 +1,34 @@
 import React, {useState} from 'react';
 import {WeekDay} from "../../features/calendar/Calendar";
-import {useAddMutation} from "../../features/event/eventApiSlice";
-import {ScheduleEvent} from "../../pages/EventTable/EventTable";
-import eventService from "../../features/event/eventService";
+import {useAddEventMutation} from "../../features/event/eventApiSlice";
+import {ScheduleEvent} from "../../features/event/eventService";
 import cl from './AddEvent.module.css';
 import Input from "../../UI/Input/Input";
 import Button from "../../UI/Button/Button";
+import Textarea from "../../UI/Textarea/Textarea";
 
 interface Props {
     day: WeekDay | null,
     hour: number | null,
-    addEvent: (event: ScheduleEvent) => void
+    addEventToResponse: (event: ScheduleEvent) => void,
+    closeModal: () => any
 }
 
-const AddEvent = ({day, hour, addEvent}: Props) => {
+const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
     const [name, setName] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
 
-    const [add, {isLoading}] = useAddMutation();
+    const [addEvent, {isLoading}] = useAddEventMutation();
 
     const submit = async (): Promise<void> => {
         // Submit event
         if(day && hour) {
             try {
-                const eventData: ScheduleEvent = eventService.serverResponseToEventData(
-                    await add({name: name, date: day.date, hours: hour}).unwrap()
-                );
+                const eventData: ScheduleEvent = await addEvent({name: name, date: day.date, hour: hour, description: description}).unwrap();
 
                 // Event added successfully
-                addEvent(eventData);
+                addEventToResponse(eventData);
+                closeModal();
                 console.log(eventData.date);
             } catch (err: any) {
                 console.log(err);
@@ -47,6 +48,13 @@ const AddEvent = ({day, hour, addEvent}: Props) => {
                     placeholder="Give a name for your event"
                     onChange={(e) => setName(e.target.value)}
                     value={name}
+                />
+            </div>
+            <div className={cl.contentBlock}>
+                <Textarea
+                    placeholder="Give a description for your event (optional)"
+                    onChange={(e) => setDescription(e.target.value)}
+                    value={description}
                 />
             </div>
             <div className={cl.contentBlock}>
