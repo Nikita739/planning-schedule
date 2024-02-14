@@ -35,6 +35,7 @@ export interface IEvent extends Model<InferAttributes<IEvent>, InferCreationAttr
     description: string | null;
     date: string;
     userId: number;
+    endDate: string;
 }
 
 const Event = sequelize.define<IEvent>("event", {
@@ -42,7 +43,8 @@ const Event = sequelize.define<IEvent>("event", {
     date: {type: DataTypes.DATE, allowNull: false},
     name: {type: DataTypes.TEXT, allowNull: false},
     description: {type: DataTypes.TEXT, allowNull: true, defaultValue: null},
-    userId: {type: DataTypes.BIGINT, allowNull: false}
+    userId: {type: DataTypes.BIGINT, allowNull: false},
+    endDate: {type: DataTypes.DATE, allowNull: false},
 });
 
 User.hasMany(Token);

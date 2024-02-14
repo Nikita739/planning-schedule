@@ -4,7 +4,7 @@ import ApiError from "../exeptions/apiError";
 const {Event} = models;
 
 class EventService {
-    async addEvent(name: string, date: string, userId: number, description?: string) {
+    async addEvent(name: string, date: string, userId: number, description?: string, endDate?: string) {
         const eventWithSameDate = await Event.findOne({
             where: {
                 date: date
@@ -15,11 +15,15 @@ class EventService {
             throw ApiError.BadRequest("Event is already planned for this time");
         }
 
+        const parsedDate: Date = this.parseDate(date);
+        parsedDate.setHours(parsedDate.getHours() + 1);
+
         return await Event.create({
             date: date,
             name: name,
             userId: userId,
-            description: description
+            description: description,
+            endDate: endDate || parsedDate.toISOString()
         });
     }
 
@@ -36,10 +40,24 @@ class EventService {
         return event;
     }
 
+    async deleteEvent(userId: number, eventId: number) {
+        const event = await Event.findOne({where: {id: eventId, userId: userId}});
+        if(!event) {
+            throw ApiError.BadRequest("Event with this id and userId is not found");
+        }
+
+        await event.destroy();
+        return event;
+    }
+
     async getEvents(userId: number) {
         return await Event.findAll({
             where: {userId: userId}
         });
+    }
+
+    parseDate(date: string): Date {
+        return new Date(date);
     }
 }
 

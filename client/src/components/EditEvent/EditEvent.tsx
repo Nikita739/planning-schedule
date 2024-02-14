@@ -1,11 +1,11 @@
 import {WeekDay} from "../../features/calendar/Calendar";
 import {ScheduleEvent} from "../../features/event/eventService";
 import React, {useState} from "react";
-import cl from "../AddEvent/AddEvent.module.css";
+import cl from "./EditEvent.module.css";
 import Input from "../../UI/Input/Input";
 import Textarea from "../../UI/Textarea/Textarea";
 import Button from "../../UI/Button/Button";
-import {useUpdateEventMutation} from "../../features/event/eventApiSlice";
+import {useUpdateEventMutation, useDeleteEventMutation} from "../../features/event/eventApiSlice";
 
 interface Props {
     day: WeekDay | null,
@@ -14,14 +14,16 @@ interface Props {
     originalDescription?: string,
     closeModal: () => any,
     id: number,
-    reloadEvents: () => void
+    reloadEvents: () => void,
+    hasOccurred?: boolean
 }
 
-const EditEvent = ({day, hour, closeModal, id, originalDescription = "", originalName, reloadEvents}: Props) => {
+const EditEvent = ({day, hour, closeModal, id, originalDescription = "", originalName, reloadEvents, hasOccurred = false}: Props) => {
     const [name, setName] = useState<string>(originalName || "");
     const [description, setDescription] = useState<string>(originalDescription || "");
 
     const [updateEvent, {isLoading}] = useUpdateEventMutation();
+    const [deleteEvent] = useDeleteEventMutation();
 
     const haveValuesChanged = (): boolean => {
         if(originalName !== name) return true;
@@ -43,8 +45,20 @@ const EditEvent = ({day, hour, closeModal, id, originalDescription = "", origina
         }
     }
 
+    const deleteEventFromTable = async () => {
+        try {
+            const eventData: ScheduleEvent = await deleteEvent({id: id}).unwrap();
+
+            // Event deleted successfully
+            reloadEvents();
+            closeModal();
+        } catch (err: any) {
+            console.log(err);
+        }
+    }
+
     return (
-        <div>
+        <div className={cl.outer}>
             <div className={cl.contentBlock}>
                 <p>Day: {day?.name}</p>
                 <p>Hour: {hour}</p>
@@ -55,6 +69,7 @@ const EditEvent = ({day, hour, closeModal, id, originalDescription = "", origina
                     placeholder="Edit event name..."
                     onChange={(e) => setName(e.target.value)}
                     value={name}
+                    disabled={hasOccurred}
                 />
             </div>
             <div className={cl.contentBlock}>
@@ -62,14 +77,28 @@ const EditEvent = ({day, hour, closeModal, id, originalDescription = "", origina
                     placeholder="Edit event description..."
                     onChange={(e) => setDescription(e.target.value)}
                     value={description}
+                    disabled={hasOccurred}
                 />
             </div>
             <div className={cl.contentBlock}>
-                <Button
-                    onClick={save}
-                >
-                    Save
-                </Button>
+                <div className={cl.actions}>
+                    {!hasOccurred
+                    &&
+                    <Button
+                        onClick={save}
+                    >
+                        Save
+                    </Button>
+                    }
+                    <Button onClick={deleteEventFromTable}>
+                        Delete event
+                    </Button>
+                    <Button
+                        onClick={() => closeModal()}
+                    >
+                        Close
+                    </Button>
+                </div>
             </div>
         </div>
     );

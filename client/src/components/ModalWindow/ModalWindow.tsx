@@ -1,9 +1,9 @@
-import React, {Dispatch, ReactChildren, ReactElement, SetStateAction} from 'react';
+import React, {Dispatch, ReactElement, SetStateAction} from 'react';
 import cl from './ModalWindow.module.css';
 
 interface Props {
     setIsOpen: Dispatch<SetStateAction<boolean>>;
-    children: ReactElement
+    children: ReactElement;
 }
 
 const ModalWindow = ({setIsOpen, children}: Props) => {
@@ -22,6 +22,12 @@ const ModalWindow = ({setIsOpen, children}: Props) => {
             onClick={(e) => closeModal(e)}
         >
             <div onClick={contentClick} className={cl.content}>
+                <div
+                    className={cl.closeButton}
+                    onClick={() => setIsOpen(false)}
+                >
+                    ╳
+                </div>
                 {children}
             </div>
         </div>

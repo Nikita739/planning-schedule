@@ -9,4 +9,5 @@ html, body {
     margin-top: 20px;
     margin-bottom: 20px;
     width: 100%;
+    min-height: calc(100vh - 196px - 100px);
 }

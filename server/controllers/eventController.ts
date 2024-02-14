@@ -7,6 +7,7 @@ export interface IEventData {
     name: string;
     date: string;
     description?: string;
+    endDate?: string
 }
 
 export interface IUpdateEventData {
@@ -15,10 +16,14 @@ export interface IUpdateEventData {
     description?: string;
 }
 
+export interface IDeleteEventData {
+    id: number;
+}
+
 class EventController {
     async addEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            const {name, description, date}: IEventData = req.body;
+            const {name, description, date, endDate}: IEventData = req.body;
             RequestService.checkMissingParams({name, date},
                 ["date", "name"]
             );
@@ -27,7 +32,7 @@ class EventController {
                 return next(ApiError.UnauthorizedError());
             }
 
-            const event = await eventService.addEvent(name, date, res.locals.user.id, description);
+            const event = await eventService.addEvent(name, date, res.locals.user.id, description, endDate);
             return res.json(event);
         } catch (e) {
             next(e);
@@ -45,6 +50,22 @@ class EventController {
 
             const updatedEvent = await eventService.updateEvent(userId, id, name, description);
             res.json(updatedEvent);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async deleteEvent(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {id}: IDeleteEventData = req.body;
+            const userId: number = res.locals.user.id;
+
+            RequestService.checkMissingParams({...req.body, userId: userId},
+                ["id", "userId"]
+            );
+
+            const deletedEvent = await eventService.deleteEvent(userId, id);
+            res.json(deletedEvent);
         } catch (e) {
             next(e);
         }

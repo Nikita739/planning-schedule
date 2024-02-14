@@ -37,7 +37,7 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
     }
 
     return (
-        <div>
+        <div className={cl.outer}>
             <div className={cl.contentBlock}>
                 <p>Day: {day?.name}</p>
                 <p>Hour: {hour}</p>
@@ -58,11 +58,19 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
                 />
             </div>
             <div className={cl.contentBlock}>
-                <Button
-                    onClick={submit}
-                >
-                    Submit
-                </Button>
+                <div className={cl.actions}>
+                    <Button
+                        onClick={submit}
+                    >
+                        Submit
+                    </Button>
+                    <Button
+                        onClick={() => closeModal()}
+                    >
+                        Close
+                    </Button>
+                </div>
+
             </div>
         </div>
     );

@@ -20,7 +20,8 @@ interface UpdateEventProps {
     originalDescription: string,
     closeModal: () => any,
     id: number,
-    reloadEvents: () => void
+    reloadEvents: () => void,
+    hasOccurred?: boolean
 }
 
 const EventTable = () => {
@@ -67,18 +68,24 @@ const EventTable = () => {
 
         // If the event is already planned for this cell, then open Edit Event window
         const isOccupied = checkTask(day.date, hour);
-        if(isOccupied) {
-            setIsModalOpen(true);
-            setUpdateEventProps({
-                day: day,
-                hour: hour,
-                originalName: isOccupied.name,
-                originalDescription: isOccupied.description || "",
-                closeModal: resetModal,
-                id: isOccupied.id,
-                reloadEvents
-            });
-        } else {
+        if(isOccupied?.date) {
+            const eventDate = new Date(isOccupied.date);
+            eventDate.setHours(hour);
+
+            if(isOccupied) {
+                setIsModalOpen(true);
+                setUpdateEventProps({
+                    day: day,
+                    hour: hour,
+                    originalName: isOccupied.name,
+                    originalDescription: isOccupied.description || "",
+                    closeModal: resetModal,
+                    id: isOccupied.id,
+                    reloadEvents,
+                    hasOccurred: new Date() > eventDate
+                });
+            }
+        } else if(!isOccupied) {
             setIsModalOpen(true);
             setAddEventProps({day, hour});
         }
@@ -147,6 +154,7 @@ const EventTable = () => {
                             closeModal={updateEventProps.closeModal}
                             id={updateEventProps.id}
                             reloadEvents={updateEventProps.reloadEvents}
+                            hasOccurred={updateEventProps.hasOccurred}
                         />
                     </ModalWindow>
             }

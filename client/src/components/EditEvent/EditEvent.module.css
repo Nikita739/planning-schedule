@@ -1,0 +1,14 @@
+.contentBlock {
+    margin-bottom: 20px;
+}
+
+.actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.outer {
+    min-width: 350px;
+}

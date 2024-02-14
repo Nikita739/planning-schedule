@@ -6,6 +6,7 @@ const router = Router();
 
 router.post('/add', authMiddleware, EventController.addEvent);
 router.post('/update', authMiddleware, EventController.updateEvent);
+router.post('/delete', authMiddleware, EventController.deleteEvent);
 router.get('/get', authMiddleware, EventController.getEvents);
 
 export default router;
