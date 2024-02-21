@@ -12,3 +12,7 @@
 .outer {
     min-width: 350px;
 }
+
+.timeSelect {
+    margin-bottom: 15px;
+}

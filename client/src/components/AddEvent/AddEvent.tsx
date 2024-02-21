@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {WeekDay} from "../../features/calendar/Calendar";
 import {useAddEventMutation} from "../../features/event/eventApiSlice";
 import {ScheduleEvent} from "../../features/event/eventService";
@@ -6,6 +6,7 @@ import cl from './AddEvent.module.css';
 import Input from "../../UI/Input/Input";
 import Button from "../../UI/Button/Button";
 import Textarea from "../../UI/Textarea/Textarea";
+import SelectTime, {TimeBoundaries} from "../SelectTime/SelectTime";
 
 interface Props {
     day: WeekDay | null,
@@ -18,13 +19,44 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
 
+    const [startTime, setStartTime] = useState<number>(new Date().getHours() > (hour || 1) ? (hour || 1) : new Date().getHours());
+    const [endTime, setEndTime] = useState<number>(startTime + 1);
+
+    const now = new Date();
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() ));
+    let daySelectedWithoutTime = day?.date;
+
+    if (day?.date) {
+        daySelectedWithoutTime = new Date(Date.UTC(day.date.getUTCFullYear(), day.date.getUTCMonth(), day.date.getUTCDate() + 1));
+    }
+
+    console.log(today);
+    console.log(daySelectedWithoutTime)
+
+    // @ts-ignore
+    const startMin = today >= daySelectedWithoutTime ? new Date().getHours() : 1;
+
+    const [startTimeBoundaries, setStartTimeBoundaries] = useState<TimeBoundaries>({
+        min: startMin
+    });
+    const [endTimeBoundaries, setEndTimeBoundaries] = useState<TimeBoundaries>({
+        min: startTime + 1
+    });
+
     const [addEvent, {isLoading}] = useAddEventMutation();
+
+    useEffect(() => {
+        setEndTimeBoundaries({
+            max: endTimeBoundaries?.max,
+            min: startTime + 1,
+        });
+    }, [startTime]);
 
     const submit = async (): Promise<void> => {
         // Submit event
         if(day && hour) {
             try {
-                const eventData: ScheduleEvent = await addEvent({name: name, date: day.date, hour: hour, description: description}).unwrap();
+                const eventData: ScheduleEvent = await addEvent({name: name, date: day.date, hour: startTime, description: description, endHour: endTime}).unwrap();
 
                 // Event added successfully
                 addEventToResponse(eventData);
@@ -36,12 +68,40 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
         }
     }
 
+    const onStartTimeChange = (num: number) => {
+        setStartTime(num);
+        if(num >= endTime) {
+            console.log("HERE!!!")
+            setEndTime(num + 1);
+        }
+    }
+
+    const onEndTimeChange = (num: number) => {
+        setEndTime(num);
+    }
+
     return (
         <div className={cl.outer}>
             <div className={cl.contentBlock}>
                 <p>Day: {day?.name}</p>
                 <p>Hour: {hour}</p>
             </div>
+
+            <p>Start time:</p>
+            <SelectTime
+                onChange={onStartTimeChange}
+                className={cl.timeSelect}
+                value={startTime}
+                boundaries={startTimeBoundaries}
+            />
+
+            <p>End time:</p>
+            <SelectTime
+                onChange={onEndTimeChange}
+                className={cl.timeSelect}
+                value={endTime}
+                boundaries={endTimeBoundaries}
+            />
 
             <div className={cl.contentBlock}>
                 <Input
@@ -70,7 +130,6 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
                         Close
                     </Button>
                 </div>
-
             </div>
         </div>
     );

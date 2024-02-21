@@ -1,3 +1,17 @@
-Block possibility to select time that has already passed
+Add a server endpoint that returns an event whenever it occurres
+Connect to that endpoint from client
+Display an event through windows pop-ups
+
+
+BUGS:
+Fix start time being less that current time
+
+Add startTime and endTime in EditEvent
+
+
+
+
+
 Add possibility to delete event history
 Если время начала события меньше чем текущее время, а время конца события больше текущего, то время начала нельзя редактировать, а время конца можно изменять от текущего до 24:00
+Remove border from same events cells, make one hover for every

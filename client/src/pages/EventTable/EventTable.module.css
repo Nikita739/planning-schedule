@@ -16,6 +16,7 @@ th, td {
 
 td:hover {
     background-color: #d4f89d;
+    cursor: pointer;
 }
 
 .outer {
@@ -24,4 +25,12 @@ td:hover {
 
 .activeDay {
     color: deepskyblue;
+}
+
+.event-cell {
+    background-color: #c5e3ff;
+}
+
+.event-cell:hover {
+    background-color: #88c2ff !important;
 }

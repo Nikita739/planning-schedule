@@ -24,6 +24,14 @@ interface UpdateEventProps {
     hasOccurred?: boolean
 }
 
+interface TableCell {
+    className: string;
+    day: number;
+    hour: number;
+    event?: ScheduleEvent;
+    rowspan?: number;
+}
+
 const EventTable = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [addEventProps, setAddEventProps] = useState<AddEventProps | null>(null);
@@ -63,31 +71,35 @@ const EventTable = () => {
         return res !== null ? res.name : " ";
     }
 
-    const openModal = (day: WeekDay, hour: number) => {
+    const openModal = (day: WeekDay, hour: number, occupied: null | ScheduleEvent): void => {
         resetModal()
 
         // If the event is already planned for this cell, then open Edit Event window
-        const isOccupied = checkTask(day.date, hour);
-        if(isOccupied?.date) {
-            const eventDate = new Date(isOccupied.date);
+        if(occupied?.date) {
+            const eventDate = new Date(occupied.date);
             eventDate.setHours(hour);
 
-            if(isOccupied) {
+            if(occupied) {
                 setIsModalOpen(true);
                 setUpdateEventProps({
                     day: day,
                     hour: hour,
-                    originalName: isOccupied.name,
-                    originalDescription: isOccupied.description || "",
+                    originalName: occupied.name,
+                    originalDescription: occupied.description || "",
                     closeModal: resetModal,
-                    id: isOccupied.id,
+                    id: occupied.id,
                     reloadEvents,
                     hasOccurred: new Date() > eventDate
                 });
             }
-        } else if(!isOccupied) {
-            setIsModalOpen(true);
-            setAddEventProps({day, hour});
+        } else if(!occupied) {
+            const cellDate = new Date(day.date);
+            cellDate.setHours(hour);
+
+            if(new Date() <= cellDate) {
+                setIsModalOpen(true);
+                setAddEventProps({day, hour});
+            }
         }
     }
 
@@ -101,10 +113,77 @@ const EventTable = () => {
         setEvents([...events, newEvent]);
     }
 
+    const rows = [];
+
+    for (let hour = 1; hour <= 24; hour++) {
+        const cells: TableCell[] = [];
+        const cellsRecord: any[] = [];
+        let rowspan: number = 1;
+        for (let i = 0; i < 7; i++) {
+            let day: WeekDay = location.state.weekdays[i];
+
+            const dateStr = `Day of week: ${day.name}, hour: ${hour}`;
+
+            const event = events.find(event => {
+                const eventDay = event.date.getDay();
+                const eventHour = event.date.getHours();
+                const eventHourEnd = event.endDate.getHours();
+
+                const dayDate = new Date(day.date);
+                dayDate.setHours(hour);
+
+                return (hour >= eventHour && hour < eventHourEnd) && (dayDate >= event.date && dayDate <= event.endDate);
+            });
+
+            const className = event ? 'event-cell' : '';
+
+            // if(event) {
+            //     rowspan++;
+            // }
+            //
+            // if(cellsRecord[cellsRecord.length - 1] === null) {
+            //     const cellInfo = cells[cells.length - 1 - rowspan];
+            //
+            //     cells[cells.length - 1 - rowspan] = {
+            //         ...cellInfo,
+            //         rowspan: rowspan
+            //     };
+            //
+            //     rowspan = 1;
+            // }
+
+            cells.push({
+                day: i,
+                hour: hour,
+                className: className,
+                event: event
+            });
+
+            // Save the cells history
+            cellsRecord.push(event || null);
+        }
+
+        rows.push(
+            <tr key={hour}>
+                <th>{hour}:00</th>
+                {cells.map(el =>
+                    <td
+                        key={`${el.day}-${el.hour}`}
+                        className={cl[el.className]}
+                        onClick={() => openModal(location.state.weekdays[el.day], el.hour, el.event || null)}
+                        rowSpan={el.rowspan}
+                    >
+                        {el.event ? el.event.name : ''}
+                    </td>
+                )}
+            </tr>
+        );
+    }
+
     return (
         <div className={cl.outer}>
             <table>
-                <tbody className={cl.table}>
+                <thead>
                     <tr>
                         <th></th>
                         {location.state.weekdays.map((el: WeekDay) =>
@@ -113,23 +192,9 @@ const EventTable = () => {
                             </th>
                         )}
                     </tr>
-                    {Array.from({ length: 24 }).fill(0).map((hour: any, index) =>
-                        <tr key={index}>
-                            <th>
-                                {index + 1}:00
-                            </th>
-                            {location.state.weekdays.map((weekDay: WeekDay) =>
-                                <td
-                                    key={weekDay.name}
-                                    onClick={() => openModal(weekDay, index + 1)}
-                                >
-                                    <p>
-                                        {checkTask(weekDay.date, index + 1)?.name || " "}
-                                    </p>
-                                </td>
-                            )}
-                        </tr>
-                    )}
+                </thead>
+                <tbody>
+                    {rows}
                 </tbody>
             </table>
             {isModalOpen && addEventProps
