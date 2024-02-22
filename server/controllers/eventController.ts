@@ -2,6 +2,7 @@ import {NextFunction, Request, Response} from "express";
 import eventService from "../services/eventService";
 import ApiError from "../exeptions/apiError";
 import RequestService from "../services/requestService";
+import {statfsSync} from "fs";
 
 export interface IEventData {
     name: string;
@@ -14,6 +15,8 @@ export interface IUpdateEventData {
     id: number;
     name?: string;
     description?: string;
+    startTime?: string;
+    endTime?: string;
 }
 
 export interface IDeleteEventData {
@@ -41,14 +44,14 @@ class EventController {
 
     async updateEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            const {id, name, description}: IUpdateEventData = req.body;
+            const {id, name, description, startTime, endTime}: IUpdateEventData = req.body;
             const userId: number = res.locals.user.id;
 
             RequestService.checkMissingParams({...req.body, userId: userId},
                 ["id", "userId"]
             );
 
-            const updatedEvent = await eventService.updateEvent(userId, id, name, description);
+            const updatedEvent = await eventService.updateEvent(userId, id, name, description, startTime, endTime);
             res.json(updatedEvent);
         } catch (e) {
             next(e);

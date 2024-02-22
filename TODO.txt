@@ -2,10 +2,6 @@ Add a server endpoint that returns an event whenever it occurres
 Connect to that endpoint from client
 Display an event through windows pop-ups
 
-
-BUGS:
-Fix start time being less that current time
-
 Add startTime and endTime in EditEvent
 
 

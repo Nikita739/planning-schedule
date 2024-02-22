@@ -15,10 +15,11 @@ interface Props {
     closeModal: () => any,
     id: number,
     reloadEvents: () => void,
-    hasOccurred?: boolean
+    hasOccurred?: boolean,
+    endDate: Date
 }
 
-const EditEvent = ({day, hour, closeModal, id, originalDescription = "", originalName, reloadEvents, hasOccurred = false}: Props) => {
+const EditEvent = ({day, hour, closeModal, id, originalDescription = "", originalName, reloadEvents, hasOccurred = false, endDate}: Props) => {
     const [name, setName] = useState<string>(originalName || "");
     const [description, setDescription] = useState<string>(originalDescription || "");
 
@@ -61,7 +62,8 @@ const EditEvent = ({day, hour, closeModal, id, originalDescription = "", origina
         <div className={cl.outer}>
             <div className={cl.contentBlock}>
                 <p>Day: {day?.name}</p>
-                <p>Hour: {hour}</p>
+                <p>Start time: {hour}:00</p>
+                <p>End time: {endDate.getHours()}:00</p>
             </div>
 
             <div className={cl.contentBlock}>

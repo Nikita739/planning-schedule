@@ -19,25 +19,11 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
 
-    const [startTime, setStartTime] = useState<number>(new Date().getHours() > (hour || 1) ? (hour || 1) : new Date().getHours());
+    const [startTime, setStartTime] = useState<number>(hour || 1);
     const [endTime, setEndTime] = useState<number>(startTime + 1);
 
-    const now = new Date();
-    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() ));
-    let daySelectedWithoutTime = day?.date;
-
-    if (day?.date) {
-        daySelectedWithoutTime = new Date(Date.UTC(day.date.getUTCFullYear(), day.date.getUTCMonth(), day.date.getUTCDate() + 1));
-    }
-
-    console.log(today);
-    console.log(daySelectedWithoutTime)
-
-    // @ts-ignore
-    const startMin = today >= daySelectedWithoutTime ? new Date().getHours() : 1;
-
     const [startTimeBoundaries, setStartTimeBoundaries] = useState<TimeBoundaries>({
-        min: startMin
+        min: 1
     });
     const [endTimeBoundaries, setEndTimeBoundaries] = useState<TimeBoundaries>({
         min: startTime + 1
@@ -51,6 +37,25 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
             min: startTime + 1,
         });
     }, [startTime]);
+
+    useEffect(() => {
+        const now = new Date();
+        const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        let daySelectedWithoutTime = day?.date;
+
+        if (day?.date) {
+            daySelectedWithoutTime = new Date(Date.UTC(day.date.getUTCFullYear(), day.date.getUTCMonth(), day.date.getUTCDate() + 1));
+        }
+
+        console.log(daySelectedWithoutTime);
+
+        // @ts-ignore
+        const startMin = today >= daySelectedWithoutTime ? new Date().getHours() : 1;
+
+        setStartTimeBoundaries({
+            min: startMin
+        });
+    }, []);
 
     const submit = async (): Promise<void> => {
         // Submit event

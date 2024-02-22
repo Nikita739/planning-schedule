@@ -21,7 +21,8 @@ interface UpdateEventProps {
     closeModal: () => any,
     id: number,
     reloadEvents: () => void,
-    hasOccurred?: boolean
+    hasOccurred?: boolean,
+    endDate: Date
 }
 
 interface TableCell {
@@ -83,13 +84,14 @@ const EventTable = () => {
                 setIsModalOpen(true);
                 setUpdateEventProps({
                     day: day,
-                    hour: hour,
+                    hour: occupied.hour,
                     originalName: occupied.name,
                     originalDescription: occupied.description || "",
                     closeModal: resetModal,
                     id: occupied.id,
                     reloadEvents,
-                    hasOccurred: new Date() > eventDate
+                    hasOccurred: new Date() > eventDate,
+                    endDate: occupied.endDate
                 });
             }
         } else if(!occupied) {
@@ -220,6 +222,7 @@ const EventTable = () => {
                             id={updateEventProps.id}
                             reloadEvents={updateEventProps.reloadEvents}
                             hasOccurred={updateEventProps.hasOccurred}
+                            endDate={updateEventProps.endDate}
                         />
                     </ModalWindow>
             }
