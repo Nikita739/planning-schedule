@@ -6,7 +6,8 @@ import cl from './AddEvent.module.css';
 import Input from "../../UI/Input/Input";
 import Button from "../../UI/Button/Button";
 import Textarea from "../../UI/Textarea/Textarea";
-import SelectTime, {TimeBoundaries} from "../SelectTime/SelectTime";
+import {TimeBoundaries} from "../SelectTime/SelectTime";
+import SelectTimeRange from "../SelectTimeRange/SelectTimeRange";
 
 interface Props {
     day: WeekDay | null,
@@ -22,23 +23,9 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
     const [startTime, setStartTime] = useState<number>(hour || 1);
     const [endTime, setEndTime] = useState<number>(startTime + 1);
 
-    const [startTimeBoundaries, setStartTimeBoundaries] = useState<TimeBoundaries>({
-        min: 1
-    });
-    const [endTimeBoundaries, setEndTimeBoundaries] = useState<TimeBoundaries>({
-        min: startTime + 1
-    });
-
     const [addEvent, {isLoading}] = useAddEventMutation();
 
-    useEffect(() => {
-        setEndTimeBoundaries({
-            max: endTimeBoundaries?.max,
-            min: startTime + 1,
-        });
-    }, [startTime]);
-
-    useEffect(() => {
+    const getStartTimeMin = (): number => {
         const now = new Date();
         const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
         let daySelectedWithoutTime = day?.date;
@@ -47,15 +34,9 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
             daySelectedWithoutTime = new Date(Date.UTC(day.date.getUTCFullYear(), day.date.getUTCMonth(), day.date.getUTCDate() + 1));
         }
 
-        console.log(daySelectedWithoutTime);
-
         // @ts-ignore
-        const startMin = today >= daySelectedWithoutTime ? new Date().getHours() : 1;
-
-        setStartTimeBoundaries({
-            min: startMin
-        });
-    }, []);
+        return today >= daySelectedWithoutTime ? new Date().getHours() : 1;
+    }
 
     const submit = async (): Promise<void> => {
         // Submit event
@@ -73,18 +54,6 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
         }
     }
 
-    const onStartTimeChange = (num: number) => {
-        setStartTime(num);
-        if(num >= endTime) {
-            console.log("HERE!!!")
-            setEndTime(num + 1);
-        }
-    }
-
-    const onEndTimeChange = (num: number) => {
-        setEndTime(num);
-    }
-
     return (
         <div className={cl.outer}>
             <div className={cl.contentBlock}>
@@ -92,20 +61,12 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
                 <p>Hour: {hour}</p>
             </div>
 
-            <p>Start time:</p>
-            <SelectTime
-                onChange={onStartTimeChange}
-                className={cl.timeSelect}
-                value={startTime}
-                boundaries={startTimeBoundaries}
-            />
-
-            <p>End time:</p>
-            <SelectTime
-                onChange={onEndTimeChange}
-                className={cl.timeSelect}
-                value={endTime}
-                boundaries={endTimeBoundaries}
+            <SelectTimeRange
+                startTime={startTime}
+                endTime={endTime}
+                setStartTime={setStartTime}
+                setEndTime={setEndTime}
+                min={getStartTimeMin()}
             />
 
             <div className={cl.contentBlock}>

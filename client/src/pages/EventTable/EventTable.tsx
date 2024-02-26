@@ -115,16 +115,24 @@ const EventTable = () => {
         setEvents([...events, newEvent]);
     }
 
+
+
+
+
+
+
+
+
+
+
+
     const rows = [];
 
     for (let hour = 1; hour <= 24; hour++) {
         const cells: TableCell[] = [];
-        const cellsRecord: any[] = [];
-        let rowspan: number = 1;
+
         for (let i = 0; i < 7; i++) {
             let day: WeekDay = location.state.weekdays[i];
-
-            const dateStr = `Day of week: ${day.name}, hour: ${hour}`;
 
             const event = events.find(event => {
                 const eventDay = event.date.getDay();
@@ -137,32 +145,35 @@ const EventTable = () => {
                 return (hour >= eventHour && hour < eventHourEnd) && (dayDate >= event.date && dayDate <= event.endDate);
             });
 
+            let rowspan = 1;
+            if (event) {
+                const eventStartDate = new Date(event.date);
+                const eventStartHour = eventStartDate.getHours();
+                const eventEndDate = new Date(event.endDate);
+                const eventEndHour = eventEndDate.getHours();
+
+                // If the current hour is the start hour of the event, calculate rowspan
+                if (hour === eventStartHour) {
+                    rowspan = 24 - eventStartHour;
+                    if (eventEndHour < 24) {
+                        rowspan = Math.min(rowspan, eventEndHour - eventStartHour);
+                    }
+                } else {
+                    // Skip cells that are not the start hour of the event
+                    continue;
+                }
+            }
+
             const className = event ? 'event-cell' : '';
 
-            // if(event) {
-            //     rowspan++;
-            // }
-            //
-            // if(cellsRecord[cellsRecord.length - 1] === null) {
-            //     const cellInfo = cells[cells.length - 1 - rowspan];
-            //
-            //     cells[cells.length - 1 - rowspan] = {
-            //         ...cellInfo,
-            //         rowspan: rowspan
-            //     };
-            //
-            //     rowspan = 1;
-            // }
 
             cells.push({
                 day: i,
                 hour: hour,
                 className: className,
-                event: event
+                event: event,
+                rowspan: rowspan
             });
-
-            // Save the cells history
-            cellsRecord.push(event || null);
         }
 
         rows.push(
@@ -181,6 +192,7 @@ const EventTable = () => {
             </tr>
         );
     }
+
 
     return (
         <div className={cl.outer}>

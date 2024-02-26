@@ -24,10 +24,10 @@ export const eventApiSlice = apiSlice.injectEndpoints({
         }),
 
         updateEvent: builder.mutation({
-            query: (eventData: {name?: string, description?: string, id: number}): FetchArgs => ({
+            query: (eventData: {name?: string, description?: string, id: number, startDate?: Date, endDate?: Date}): FetchArgs => ({
                 url: '/event/update',
                 method: 'POST',
-                body: {name: eventData.name, description: eventData.description, id: eventData.id}
+                body: {name: eventData.name, description: eventData.description, id: eventData.id, startTime: eventData.startDate?.toISOString(), endTime: eventData.endDate?.toISOString()}
             }),
 
             transformResponse(result: EventServerResponse): ScheduleEvent {

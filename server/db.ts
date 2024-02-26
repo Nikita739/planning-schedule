@@ -1,12 +1,12 @@
 import {Sequelize} from "sequelize";
 
 export default new Sequelize(
-    process.env.DB_NAME!,
-    process.env.DB_USER!,
-    process.env.DB_PASSWORD!,
+    "planning-schedule",
+    "postgres",
+    "123N456N789n",
     {
         dialect: 'postgres',
-        host: process.env.DB_HOST,
-        port: Number(process.env.DB_PORT)
+        host: "localhost",
+        port: 5432
     }
 );

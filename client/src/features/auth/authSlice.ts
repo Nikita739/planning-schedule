@@ -41,7 +41,6 @@ const exportActions = {
     setCredentials: authSlice.actions.setCredentials,
     logOut: authSlice.actions.logOut
 };
-// export const { setCredentials, logOut } = authSlice.actions
 
 export const { setCredentials, logOut } = exportActions;
 
