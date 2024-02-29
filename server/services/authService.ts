@@ -1,4 +1,4 @@
-import Models, {IToken, IUser} from '../models/models';
+import Models, {ISettings, IToken, IUser} from '../models/models';
 import ApiError from "../exeptions/apiError";
 import bcrypt from 'bcrypt';
 import tokenService, {AuthTokens} from "./tokenService";
@@ -6,12 +6,13 @@ import UserDto, {IUserDto} from "../dtos/userDto";
 import uuid from 'uuid';
 import {JwtPayload} from "jsonwebtoken";
 
-const {User} = Models;
+const {User, Settings} = Models;
 
 export interface AuthResult {
     user: IUserDto;
     accessToken: string;
     refreshToken: string;
+    settings: ISettings
 }
 
 export default new class AuthService {
@@ -24,13 +25,14 @@ export default new class AuthService {
         const hashPassword = await bcrypt.hash(password, 4);
 
         const user: IUser = await User.create({username, email, password: hashPassword});
+        const settings = await Settings.create({userId: user.id});
 
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
 
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
-        return {...tokens, user: userDto};
+        return {...tokens, user: userDto, settings: settings};
     }
 
     async login(email: string, password: string): Promise<AuthResult> {
@@ -47,9 +49,11 @@ export default new class AuthService {
         const userDto: IUserDto = new UserDto(candidate);
         const tokens: AuthTokens = tokenService.generateTokens({...userDto});
 
+        const settings = await Settings.findOne({where: {userId: candidate.id}});
+
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
-        return {...tokens, user: userDto};
+        return {...tokens, user: userDto, settings: settings!};
     }
 
     async logout(refreshToken: string): Promise<number> {
@@ -76,8 +80,10 @@ export default new class AuthService {
         const userDto = new UserDto(user);
         const tokens: AuthTokens = tokenService.generateTokens({...userDto});
 
+        const settings = await Settings.findOne({where: {userId: user.id}});
+
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
-        return {...tokens, user: userDto};
+        return {...tokens, user: userDto, settings: settings!};
     }
 }

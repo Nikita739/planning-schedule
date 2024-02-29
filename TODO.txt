@@ -1,11 +1,3 @@
-wAdd a server endpoint that returns an event whenever it occurres
-Connect to that endpoint from client
-Display an event through windows pop-ups
-
-Add startTime and endTime in EditEvent
-
-
-
 Add priority field to User model
 Let user select priority and edit it in AddModal and EditModal
 Low

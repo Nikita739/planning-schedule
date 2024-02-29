@@ -8,7 +8,8 @@ export interface IEventData {
     name: string;
     date: string;
     description?: string;
-    endDate?: string
+    endDate?: string;
+    priority?: 1 | 2 | 3
 }
 
 export interface IUpdateEventData {
@@ -17,6 +18,7 @@ export interface IUpdateEventData {
     description?: string;
     startTime?: string;
     endTime?: string;
+    priority?: 1 | 2 | 3;
 }
 
 export interface IDeleteEventData {
@@ -26,7 +28,7 @@ export interface IDeleteEventData {
 class EventController {
     async addEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            const {name, description, date, endDate}: IEventData = req.body;
+            const {name, description, date, endDate, priority}: IEventData = req.body;
             RequestService.checkMissingParams({name, date},
                 ["date", "name"]
             );
@@ -35,7 +37,7 @@ class EventController {
                 return next(ApiError.UnauthorizedError());
             }
 
-            const event = await eventService.addEvent(name, date, res.locals.user.id, description, endDate);
+            const event = await eventService.addEvent(name, date, res.locals.user.id, description, endDate, priority);
             return res.json(event);
         } catch (e) {
             next(e);
@@ -44,14 +46,14 @@ class EventController {
 
     async updateEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            const {id, name, description, startTime, endTime}: IUpdateEventData = req.body;
+            const {id, name, description, startTime, endTime, priority}: IUpdateEventData = req.body;
             const userId: number = res.locals.user.id;
 
             RequestService.checkMissingParams({...req.body, userId: userId},
                 ["id", "userId"]
             );
 
-            const updatedEvent = await eventService.updateEvent(userId, id, name, description, startTime, endTime);
+            const updatedEvent = await eventService.updateEvent(userId, id, name, description, startTime, endTime, priority);
             res.json(updatedEvent);
         } catch (e) {
             next(e);

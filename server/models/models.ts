@@ -17,6 +17,18 @@ const User = sequelize.define<IUser>('user', {
     password: {type: DataTypes.STRING, allowNull: false},
 });
 
+export interface ISettings extends Model<InferAttributes<ISettings>, InferCreationAttributes<ISettings>> {
+    id: CreationOptional<number>;
+    userId: number;
+    priorityColors?: string[];
+}
+
+const Settings = sequelize.define<ISettings>('settings', {
+    id: {type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true},
+    userId: {type: DataTypes.BIGINT, allowNull: false},
+    priorityColors: {type: DataTypes.ARRAY(DataTypes.TEXT), allowNull: true, defaultValue: ["#33ff44", "#fffc3b", "#ff5b3b"]}
+});
+
 export interface IToken extends Model<InferAttributes<IToken>, InferCreationAttributes<IToken>> {
     id: CreationOptional<number>;
     refreshToken: string;
@@ -36,6 +48,7 @@ export interface IEvent extends Model<InferAttributes<IEvent>, InferCreationAttr
     date: string;
     userId: number;
     endDate: string;
+    priority?: 1 | 2 | 3;
 }
 
 const Event = sequelize.define<IEvent>("event", {
@@ -45,6 +58,7 @@ const Event = sequelize.define<IEvent>("event", {
     description: {type: DataTypes.TEXT, allowNull: true, defaultValue: null},
     userId: {type: DataTypes.BIGINT, allowNull: false},
     endDate: {type: DataTypes.DATE, allowNull: false},
+    priority: {type: DataTypes.INTEGER, allowNull: true, defaultValue: 2}
 });
 
 User.hasMany(Token);
@@ -56,5 +70,6 @@ Event.belongsTo(User);
 export default {
     User,
     Token,
-    Event
+    Event,
+    Settings
 };

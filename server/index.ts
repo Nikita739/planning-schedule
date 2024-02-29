@@ -49,14 +49,29 @@ wss.on('connection', function connection(ws) {
         const userId = data.id || 0;
         const scheduledEvents = await Event.findAll({where: {userId: userId}});
 
-        scheduledEvents.forEach((event) => {
-            const startDate = new Date(event.date);
+        // scheduledEvents.forEach((event) => {
+        //     const startDate = new Date(event.date);
+        //
+        //
+        //
+        //     cron.schedule(dateToCron(startDate), () => {
+        //         console.log("CRON RUNNING EVERY MINUTE");
+        //         ws.send("CRON RESPONSE");
+        //     });
+        // });
+        const testDate = new Date();
+        testDate.setMinutes(testDate.getMinutes() + 1);
 
-            cron.schedule(dateToCron(startDate), () => {
-                console.log("CRON RUNNING EVERY MINUTE");
-                ws.send("CRON RESPONSE");
-            });
+        cron.schedule("* * * * *", () => {
+            const testResponse = {
+                type: "testResponse",
+                content: {
+                    message: "Hello world!"
+                }
+            };
+            ws.send(JSON.stringify(testResponse));
         });
+
         console.log('received: %s', data);
     });
 });
