@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import Router from "./routing/Router";
 import DefaultStyles from "./defaultStyles/DefaultStyles";
-import {IUser, setCredentials} from "./features/auth/authSlice";
+import {ISettings, IUser, setCredentials} from "./features/auth/authSlice";
 import {connect} from "./features/eventSocket/eventSocketSlice";
 import {useDispatch} from "react-redux";
 import {Dispatch} from "@reduxjs/toolkit";
@@ -20,11 +20,12 @@ function App() {
     useEffect(() => {
         const user: IUser | null = JSON.parse(localStorage.getItem('user') as string);
         const accessToken: string | null = localStorage.getItem('accessToken') as string;
+        const settings: ISettings | null = JSON.parse(localStorage.getItem('settings') as string);
 
         setUserData(user);
 
         if(user) {
-            dispatch(setCredentials({user: user, accessToken: accessToken}));
+            dispatch(setCredentials({user: user, accessToken: accessToken, settings: settings}));
         }
     }, []);
 

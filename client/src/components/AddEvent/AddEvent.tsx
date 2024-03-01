@@ -19,6 +19,7 @@ interface Props {
 const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
+    const [priority, setPriority] = useState<number>(2);
 
     const [startTime, setStartTime] = useState<number>(hour || 1);
     const [endTime, setEndTime] = useState<number>(startTime + 1);
@@ -42,7 +43,8 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
         // Submit event
         if(day && hour) {
             try {
-                const eventData: ScheduleEvent = await addEvent({name: name, date: day.date, hour: startTime, description: description, endHour: endTime}).unwrap();
+                const eventData: ScheduleEvent = await addEvent({name: name, date: day.date, hour: startTime,
+                    description: description, endHour: endTime, priority: priority || undefined}).unwrap();
 
                 // Event added successfully
                 addEventToResponse(eventData);
@@ -68,6 +70,16 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
                 setEndTime={setEndTime}
                 min={getStartTimeMin()}
             />
+
+            <p>Select event priority:</p>
+            <select
+                onChange={(e) => setPriority(Number(e.target.value))}
+                defaultValue={priority}
+            >
+                {[1, 2, 3].map(num =>
+                    <option value={num}>{num.toString()}</option>
+                )}
+            </select>
 
             <div className={cl.contentBlock}>
                 <Input

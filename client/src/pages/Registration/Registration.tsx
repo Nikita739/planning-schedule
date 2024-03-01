@@ -67,7 +67,8 @@ const Registration = () => {
                 console.log(registrationData);
                 dispatch(setCredentials({
                     user: registrationData.user,
-                    accessToken: registrationData.accessToken
+                    accessToken: registrationData.accessToken,
+                    settings: registrationData.settings || null
                 }));
                 setEmail('');
                 setPassword('');

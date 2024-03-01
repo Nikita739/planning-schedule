@@ -20,22 +20,9 @@ const EventsBroadcastConnect = ({children, user}: Props) => {
     const dispatch: Dispatch = useDispatch();
 
     useEffect(() => {
-        Notification.requestPermission().then((result) => {
-            console.log(result);
-        });
-
-        // Push.create("TEST");
-
-        console.log("================================ TEST =============================")
         if(!user) return;
 
-        console.log("USER IS LOGGED IN!")
-
         const eventSocket = new WebSocket("ws://localhost:4040");
-
-        eventSocket.onopen = () => {
-            console.log("CONNECTED TO THE EVENTS BROADCAST");
-        };
 
         eventSocket.onmessage = (ev) => {
             console.log(ev.data);

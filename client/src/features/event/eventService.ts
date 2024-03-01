@@ -5,6 +5,7 @@ export interface RequestScheduleEvent {
     endHour?: number
     hour: number,
     description?: string,
+    priority?: number;
 }
 
 export interface ScheduleEvent {
@@ -13,7 +14,8 @@ export interface ScheduleEvent {
     endDate: Date
     hour: number,
     description?: string,
-    id: number
+    id: number,
+    priority: 1 | 2 | 3
 }
 
 export interface EventServerResponse {
@@ -21,7 +23,8 @@ export interface EventServerResponse {
     description?: string,
     date: string,
     endDate: Date,
-    id: number
+    id: number,
+    priority: 1 | 2 | 3
 }
 
 class EventService {
@@ -36,7 +39,8 @@ class EventService {
             hour: hour,
             description: res.description,
             id: res.id,
-            endDate: endDate
+            endDate: endDate,
+            priority: res.priority
         };
     }
 }

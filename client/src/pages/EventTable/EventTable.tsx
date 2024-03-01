@@ -7,6 +7,8 @@ import AddEvent from "../../components/AddEvent/AddEvent";
 import {ScheduleEvent} from "../../features/event/eventService";
 import {useGetEventsMutation} from "../../features/event/eventApiSlice";
 import EditEvent from "../../components/EditEvent/EditEvent";
+import {selectSettings, selectCurrentUser} from "../../features/auth/authSlice";
+import {store} from "../../app/store";
 
 interface AddEventProps {
     day: WeekDay,
@@ -33,6 +35,81 @@ interface TableCell {
     rowspan?: number;
 }
 
+const defaultPriorityColors: string[] = ["green", "yellow", "red"];
+
+const initTableCells = (weekdays: WeekDay[], events: ScheduleEvent[], openModal: (day: WeekDay, hour: number, occupied: null | ScheduleEvent) => void,
+                        priorityColors: string[] = defaultPriorityColors): any[] => {
+    const rows = [];
+
+    for (let hour = 1; hour <= 24; hour++) {
+        const cells: TableCell[] = [];
+
+        for (let i = 0; i < 7; i++) {
+            let day: WeekDay = weekdays[i];
+
+            const event = events.find(event => {
+                const eventDay = event.date.getDay();
+                const eventHour = event.date.getHours();
+                const eventHourEnd = event.endDate.getHours();
+
+                const dayDate = new Date(day.date);
+                dayDate.setHours(hour);
+
+                return (hour >= eventHour && hour < eventHourEnd) && (dayDate >= event.date && dayDate <= event.endDate);
+            });
+
+            let rowspan = 1;
+            if (event) {
+                const eventStartDate = new Date(event.date);
+                const eventStartHour = eventStartDate.getHours();
+                const eventEndDate = new Date(event.endDate);
+                const eventEndHour = eventEndDate.getHours();
+
+                // If the current hour is the start hour of the event, calculate rowspan
+                if (hour === eventStartHour) {
+                    rowspan = 24 - eventStartHour;
+                    if (eventEndHour < 24) {
+                        rowspan = Math.min(rowspan, eventEndHour - eventStartHour);
+                    }
+                } else {
+                    // Skip cells that are not the start hour of the event
+                    continue;
+                }
+            }
+
+            const className = event ? 'event-cell' : '';
+
+
+            cells.push({
+                day: i,
+                hour: hour,
+                className: className,
+                event: event,
+                rowspan: rowspan
+            });
+        }
+
+        rows.push(
+            <tr key={hour}>
+                <th>{hour}:00</th>
+                {cells.map(el =>
+                    <td
+                        key={`${el.day}-${el.hour}`}
+                        className={[cl[el.className]].join(" ")}
+                        style={{backgroundColor: el.event?.priority && priorityColors[el.event?.priority - 1]}}
+                        onClick={() => openModal(weekdays[el.day], el.hour, el.event || null)}
+                        rowSpan={el.rowspan}
+                    >
+                        {el.event ? el.event.name : ''}
+                    </td>
+                )}
+            </tr>
+        );
+    }
+
+    return rows;
+}
+
 const EventTable = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [addEventProps, setAddEventProps] = useState<AddEventProps | null>(null);
@@ -43,6 +120,12 @@ const EventTable = () => {
     const location = useLocation();
 
     const [getEvents, {isLoading}] = useGetEventsMutation();
+
+    const settings = selectSettings(store.getState());
+    console.log(settings?.priorityColors)
+    const priorityColors = settings?.priorityColors;
+
+    console.log(settings);
 
     useEffect(() => {
         reloadEvents().then();
@@ -115,84 +198,7 @@ const EventTable = () => {
         setEvents([...events, newEvent]);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-    const rows = [];
-
-    for (let hour = 1; hour <= 24; hour++) {
-        const cells: TableCell[] = [];
-
-        for (let i = 0; i < 7; i++) {
-            let day: WeekDay = location.state.weekdays[i];
-
-            const event = events.find(event => {
-                const eventDay = event.date.getDay();
-                const eventHour = event.date.getHours();
-                const eventHourEnd = event.endDate.getHours();
-
-                const dayDate = new Date(day.date);
-                dayDate.setHours(hour);
-
-                return (hour >= eventHour && hour < eventHourEnd) && (dayDate >= event.date && dayDate <= event.endDate);
-            });
-
-            let rowspan = 1;
-            if (event) {
-                const eventStartDate = new Date(event.date);
-                const eventStartHour = eventStartDate.getHours();
-                const eventEndDate = new Date(event.endDate);
-                const eventEndHour = eventEndDate.getHours();
-
-                // If the current hour is the start hour of the event, calculate rowspan
-                if (hour === eventStartHour) {
-                    rowspan = 24 - eventStartHour;
-                    if (eventEndHour < 24) {
-                        rowspan = Math.min(rowspan, eventEndHour - eventStartHour);
-                    }
-                } else {
-                    // Skip cells that are not the start hour of the event
-                    continue;
-                }
-            }
-
-            const className = event ? 'event-cell' : '';
-
-
-            cells.push({
-                day: i,
-                hour: hour,
-                className: className,
-                event: event,
-                rowspan: rowspan
-            });
-        }
-
-        rows.push(
-            <tr key={hour}>
-                <th>{hour}:00</th>
-                {cells.map(el =>
-                    <td
-                        key={`${el.day}-${el.hour}`}
-                        className={cl[el.className]}
-                        onClick={() => openModal(location.state.weekdays[el.day], el.hour, el.event || null)}
-                        rowSpan={el.rowspan}
-                    >
-                        {el.event ? el.event.name : ''}
-                    </td>
-                )}
-            </tr>
-        );
-    }
-
+    const rows = initTableCells(location.state.weekdays, events, openModal, priorityColors);
 
     return (
         <div className={cl.outer}>

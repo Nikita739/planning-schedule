@@ -34,3 +34,15 @@ td:hover {
 .event-cell:hover {
     background-color: #88c2ff !important;
 }
+
+.priority1 {
+    background-color: green;
+}
+
+.priority2 {
+    background-color: yellow;
+}
+
+.priority3 {
+    background-color: red;
+}

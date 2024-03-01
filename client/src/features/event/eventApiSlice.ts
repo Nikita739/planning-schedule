@@ -15,7 +15,9 @@ export const eventApiSlice = apiSlice.injectEndpoints({
             query: (eventData: RequestScheduleEvent): FetchArgs => ({
                 url: '/event/add',
                 method: 'POST',
-                body: {name: eventData.name, date: formatDate(eventData.date, eventData.hour), description: eventData.description, endDate: eventData.endHour ? formatDate(eventData.date, eventData.endHour): undefined}
+                body: {name: eventData.name, date: formatDate(eventData.date, eventData.hour),
+                    description: eventData.description, endDate: eventData.endHour ? formatDate(eventData.date, eventData.endHour): undefined,
+                    priority: eventData.priority}
             }),
 
             transformResponse(result: EventServerResponse): ScheduleEvent {

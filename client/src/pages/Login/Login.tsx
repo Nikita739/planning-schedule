@@ -55,7 +55,8 @@ const Login = () => {
                 console.log(loginData);
                 dispatch(setCredentials({
                     user: loginData.user,
-                    accessToken: loginData.accessToken
+                    accessToken: loginData.accessToken,
+                    settings: loginData.settings || null
                 }));
                 setEmail('');
                 setPassword('');
