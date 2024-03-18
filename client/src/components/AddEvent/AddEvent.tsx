@@ -71,15 +71,18 @@ const AddEvent = ({day, hour, addEventToResponse, closeModal}: Props) => {
                 min={getStartTimeMin()}
             />
 
-            <p>Select event priority:</p>
-            <select
-                onChange={(e) => setPriority(Number(e.target.value))}
-                defaultValue={priority}
-            >
-                {[1, 2, 3].map(num =>
-                    <option value={num}>{num.toString()}</option>
-                )}
-            </select>
+            <div className={cl.contentBlock}>
+                <p>Select event priority:</p>
+                <select
+                    onChange={(e) => setPriority(Number(e.target.value))}
+                    defaultValue={priority}
+                >
+                    {["Low", "Medium", "High"].map((priority, index) =>
+                        <option value={index + 1}>{priority}</option>
+                    )}
+                </select>
+            </div>
+
 
             <div className={cl.contentBlock}>
                 <Input

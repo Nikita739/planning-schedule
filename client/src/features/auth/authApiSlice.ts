@@ -18,10 +18,19 @@ export const authApiSlice = apiSlice.injectEndpoints({
                 body: {username: credentials.username, email: credentials.email, password: credentials.password}
             })
         }),
+
+        changeColorSettings: builder.mutation({
+            query: (credentials): FetchArgs => ({
+                url: '/settings/change-priority-colors',
+                method: 'POST',
+                body: {newColors: credentials.newColors}
+            })
+        }),
     })
 });
 
 export const {
     useLoginMutation,
-    useRegistrationMutation
+    useRegistrationMutation,
+    useChangeColorSettingsMutation,
 } = authApiSlice;

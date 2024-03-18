@@ -1,0 +1,65 @@
+.colorSquare {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #000;
+    border-radius: 25%;
+    background-color: white;
+    cursor: pointer;
+}
+
+.selectColorSquare {
+    width: 40px;
+    height: 40px;
+}
+
+.popup {
+    cursor: default;
+    position: absolute;
+    top: 60px;
+    border: 1px solid #000;
+    border-radius: 15px;
+    padding: 15px;
+    background-color: #d7d7d7;
+    z-index: 1000;
+    box-shadow: 5px 5px 15px 5px #575757;
+}
+
+.selectOptions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.selectOptions > p {
+    font-size: 20px;
+}
+
+.closeButton {
+    position: relative;
+    font-weight: bold;
+}
+
+.closeButtonHover {
+    cursor: pointer;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.closeButtonHover:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.selectColorsContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}

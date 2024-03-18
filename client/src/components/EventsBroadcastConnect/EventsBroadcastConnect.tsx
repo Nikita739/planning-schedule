@@ -20,26 +20,28 @@ const EventsBroadcastConnect = ({children, user}: Props) => {
     const dispatch: Dispatch = useDispatch();
 
     useEffect(() => {
-        if(!user) return;
+        Notification.requestPermission().then(() => {
+            if(!user) return;
 
-        const eventSocket = new WebSocket("ws://localhost:4040");
+            const eventSocket = new WebSocket("ws://localhost:4040");
 
-        eventSocket.onmessage = (ev) => {
-            console.log(ev.data);
-            const res: BroadcastResponse = JSON.parse(ev.data);
-            if(res.type === "testResponse") {
-                Push.create(res.content.message);
+            eventSocket.onmessage = (ev) => {
+                console.log(ev.data);
+                const res: BroadcastResponse = JSON.parse(ev.data);
+                if(res.type === "testResponse") {
+                    Push.create(res.content.message);
+                }
             }
-        }
 
-        setTimeout(() => {
-            const loginEventData = {
-                id: user.id
-            }
-            eventSocket.send(JSON.stringify(loginEventData));
-        }, 50);
+            setTimeout(() => {
+                const loginEventData = {
+                    id: user.id
+                }
+                eventSocket.send(JSON.stringify(loginEventData));
+            }, 50);
 
-        dispatch(connect({socket: eventSocket}));
+            dispatch(connect({socket: eventSocket}));
+        });
     }, [user]);
 
     return (

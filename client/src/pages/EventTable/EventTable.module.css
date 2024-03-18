@@ -4,8 +4,16 @@ table, th, td, tbody {
     margin: 0;
 }
 
-table {
+.tableWrapper {
     margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: normal;
+    gap: 15px;
+}
+
+.tableWrapper > button {
+    height: 50px;
 }
 
 th, td {
@@ -21,18 +29,17 @@ td:hover {
 
 .outer {
     width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .activeDay {
     color: deepskyblue;
 }
 
-.event-cell {
-    background-color: #c5e3ff;
-}
-
 .event-cell:hover {
-    background-color: #88c2ff !important;
+    filter: brightness(70%);
 }
 
 .priority1 {

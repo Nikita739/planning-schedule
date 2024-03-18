@@ -4,6 +4,6 @@ import authMiddleware from "../middleware/authMiddleware";
 
 const router = Router();
 
-router.post('/change-settings', authMiddleware, SettingsController.changePriorityColors);
+router.post('/change-priority-colors', authMiddleware, SettingsController.changePriorityColors);
 
 export default router;

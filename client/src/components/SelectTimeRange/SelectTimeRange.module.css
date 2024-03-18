@@ -1,3 +1,7 @@
 .timeSelect {
     margin-bottom: 15px;
 }
+
+.outer > p {
+    margin-bottom: 5px;
+}

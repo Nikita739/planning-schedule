@@ -11,8 +11,12 @@ const Header = () => {
 
     return (
         <header className={cl.outer}>
-            <div>
-                <p onClick={goToHome}>Logo Here</p>
+            <div
+                onClick={goToHome}
+                className={cl.logo}
+            >
+                <p>Schedule</p>
+                <p>Spot</p>
             </div>
             <div className={cl.headerOptions}>
                 <Navigation />

@@ -12,7 +12,8 @@ class SettingsController {
                 ["userId", "newColors"]
             );
 
-            return await settingsService.changePriorityColors(userId, newColors);
+            const settings = await settingsService.changePriorityColors(userId, newColors);
+            return res.json(settings);
         } catch (e) {
             next(e);
         }

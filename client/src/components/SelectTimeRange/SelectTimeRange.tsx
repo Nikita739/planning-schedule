@@ -41,7 +41,7 @@ const SelectTimeRange = ({initialEndTime, initialStartTime, setEndTime, setStart
     }
 
     return (
-        <div>
+        <div className={cl.outer}>
             <p>Start time:</p>
             <SelectTime
                 onChange={onStartTimeChange}

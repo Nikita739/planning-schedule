@@ -28,6 +28,8 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         setCredentials: (state, action: PayloadAction<IAuthState>) => {
+            console.log("TEST =================================")
+
             const { user, accessToken, settings } = action.payload;
             localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('accessToken', accessToken || "");
@@ -46,16 +48,26 @@ const authSlice = createSlice({
             state.user = null;
             state.accessToken = null;
             state.settings = null;
-        }
+        },
+        changeSettings: (state, action: PayloadAction<ISettings>) => {
+
+            const settings = action.payload;
+            localStorage.setItem('settings', JSON.stringify(settings));
+
+            console.log("YE HAAAAAAAAAAAAAA")
+            console.log(settings);
+            state.settings = settings;
+        },
     },
 });
 
 const exportActions = {
     setCredentials: authSlice.actions.setCredentials,
-    logOut: authSlice.actions.logOut
+    logOut: authSlice.actions.logOut,
+    changeSettings: authSlice.actions.changeSettings
 };
 
-export const { setCredentials, logOut } = exportActions;
+export const { setCredentials, logOut, changeSettings } = exportActions;
 
 
 export default authSlice.reducer;

@@ -1,0 +1,20 @@
+.heading {
+    font-size: 20px;
+}
+
+.selectColorPair {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.selectColorPair > p {
+    margin: 0;
+}
+
+.colorsContainer {
+    max-width: 100px;
+}

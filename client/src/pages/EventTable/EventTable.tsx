@@ -7,8 +7,14 @@ import AddEvent from "../../components/AddEvent/AddEvent";
 import {ScheduleEvent} from "../../features/event/eventService";
 import {useGetEventsMutation} from "../../features/event/eventApiSlice";
 import EditEvent from "../../components/EditEvent/EditEvent";
-import {selectSettings, selectCurrentUser} from "../../features/auth/authSlice";
+import {
+    selectSettings,
+    ISettings
+} from "../../features/auth/authSlice";
 import {store} from "../../app/store";
+import SelectPriorityColors from "../../components/SelectPriorityColors/SelectPriorityColors";
+import Button from "../../UI/Button/Button";
+import calendarService from "../../features/calendar/calendarService";
 
 interface AddEventProps {
     day: WeekDay,
@@ -85,7 +91,7 @@ const initTableCells = (weekdays: WeekDay[], events: ScheduleEvent[], openModal:
                 hour: hour,
                 className: className,
                 event: event,
-                rowspan: rowspan
+                rowspan: rowspan,
             });
         }
 
@@ -110,6 +116,11 @@ const initTableCells = (weekdays: WeekDay[], events: ScheduleEvent[], openModal:
     return rows;
 }
 
+interface WeekInfo {
+    weekdays: WeekDay[],
+    currentDay: WeekDay
+}
+
 const EventTable = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [addEventProps, setAddEventProps] = useState<AddEventProps | null>(null);
@@ -119,13 +130,16 @@ const EventTable = () => {
 
     const location = useLocation();
 
-    const [getEvents, {isLoading}] = useGetEventsMutation();
+    const [weekInfo, setWeekInfo]= useState<WeekInfo>(location.state);
 
-    const settings = selectSettings(store.getState());
-    console.log(settings?.priorityColors)
+    const [getEvents] = useGetEventsMutation();
+
+    const [settings, setSettings] = useState<ISettings | null>(selectSettings(store.getState()));
     const priorityColors = settings?.priorityColors;
 
-    console.log(settings);
+    const priorityColorsChanged = () => {
+        setSettings(selectSettings(store.getState()));
+    }
 
     useEffect(() => {
         reloadEvents().then();
@@ -148,11 +162,6 @@ const EventTable = () => {
         }
 
         return null;
-    }
-
-    const generateP = (date: Date, hour: number) => {
-        const res = checkTask(date, hour);
-        return res !== null ? res.name : " ";
     }
 
     const openModal = (day: WeekDay, hour: number, occupied: null | ScheduleEvent): void => {
@@ -198,25 +207,59 @@ const EventTable = () => {
         setEvents([...events, newEvent]);
     }
 
-    const rows = initTableCells(location.state.weekdays, events, openModal, priorityColors);
+    const moveWeekdays = (velocity: number = 0) => {
+        velocity = Math.round(velocity);
+
+        // Add the velocity * days to the date
+        const updatedDay = weekInfo.currentDay.date;
+        updatedDay.setDate(updatedDay.getDate() + velocity);
+
+        const newWeekDays = calendarService.getWeekdaysWithDate(updatedDay);
+        setWeekInfo({
+            weekdays: newWeekDays,
+            currentDay: calendarService.getDayInfoFromDate(updatedDay)
+        });
+    }
+
+    const rows = initTableCells(weekInfo.weekdays, events, openModal, priorityColors);
 
     return (
         <div className={cl.outer}>
-            <table>
-                <thead>
+            <div>
+                <SelectPriorityColors onChange={priorityColorsChanged} />
+            </div>
+
+            <div className={cl.tableWrapper}>
+                <Button
+                    onClick={() => moveWeekdays(-7)}
+                >
+                    Previous week
+                </Button>
+                <table>
+                    <thead>
                     <tr>
                         <th></th>
-                        {location.state.weekdays.map((el: WeekDay) =>
-                            <th scope="row" key={el.name} className={el.name === location.state?.currentDay?.name ? cl.activeDay : null}>
-                                {el.name}
+                        {weekInfo.weekdays.map((el: WeekDay) =>
+                            <th scope="row" key={el.name} className={el.name === weekInfo?.currentDay?.name ? cl.activeDay : null}>
+                                <p>
+                                    {el.date.toJSON().slice(0,10).split('-').reverse().join('.')}
+                                </p>
+                                <p>{el.name}</p>
                             </th>
                         )}
                     </tr>
-                </thead>
-                <tbody>
-                    {rows}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {rows}
+                    </tbody>
+                </table>
+                <Button
+                    onClick={() => moveWeekdays(7)}
+                >
+                    Next week
+                </Button>
+            </div>
+
             {isModalOpen && addEventProps
                 &&
                     <ModalWindow setIsOpen={setIsModalOpen}>

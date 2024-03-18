@@ -9,3 +9,9 @@
     align-items: center;
     /*margin-top: auto;*/
 }
+
+.linksContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}

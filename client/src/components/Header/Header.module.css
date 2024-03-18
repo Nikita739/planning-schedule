@@ -16,3 +16,15 @@
     align-items: center;
     gap: 20px;
 }
+
+.logo {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+}
+
+.logo > p {
+    font-weight: bolder;
+    font-size: 30px;
+    color: #1976D2;
+}
