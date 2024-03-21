@@ -12,6 +12,10 @@ table, th, td, tbody {
     gap: 15px;
 }
 
+.dayControlWrapper > button {
+    margin-bottom: 15px;
+}
+
 .tableWrapper > button {
     height: 50px;
 }

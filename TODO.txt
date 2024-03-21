@@ -1,3 +1,27 @@
 Whem RMB is clicked on an event, open a window where you can mark the event as completed
 Add event repeating, user can repeat an event every week or every month.
 If user selected a month date that isn't in the next month, reduce it to the max month date
+
+
+
+Server:
+Add repeatedEvents table to server, it will contain all events that must be repeated (their id)
+Columns are week days, and rows are event id's
+
+If user goes on NextWeek, select all rows from this table, and draw them according to day and hour
+Добавить поле startsAt, в котором хранится дата начала повторения события
+
+
+Delete previousDay, nextDay
+Move previousWeel, nextWeek on top of the table
+
+
+
+Не выделять цветом день недели отличающийся от текущего
+Выделять цветом текущий день а не день выбранный с календаря
+
+Сделать все ячейки фиксированной ширины, времы меньше чем другие
+
+
+
+Сдеать адаптив

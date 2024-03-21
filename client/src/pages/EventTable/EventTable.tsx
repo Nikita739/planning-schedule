@@ -45,6 +45,10 @@ const defaultPriorityColors: string[] = ["green", "yellow", "red"];
 
 const initTableCells = (weekdays: WeekDay[], events: ScheduleEvent[], openModal: (day: WeekDay, hour: number, occupied: null | ScheduleEvent) => void,
                         priorityColors: string[] = defaultPriorityColors): any[] => {
+    const isEveryWeek = true;
+
+
+
     const rows = [];
 
     for (let hour = 1; hour <= 24; hour++) {
@@ -54,14 +58,11 @@ const initTableCells = (weekdays: WeekDay[], events: ScheduleEvent[], openModal:
             let day: WeekDay = weekdays[i];
 
             const event = events.find(event => {
-                const eventDay = event.date.getDay();
-                const eventHour = event.date.getHours();
-                const eventHourEnd = event.endDate.getHours();
-
                 const dayDate = new Date(day.date);
                 dayDate.setHours(hour);
 
-                return (hour >= eventHour && hour < eventHourEnd) && (dayDate >= event.date && dayDate <= event.endDate);
+                // return (hour >= eventHour && hour < eventHourEnd) && (dayDate >= event.date && dayDate <= event.endDate);
+                return isEventInRange(event.date, event.endDate, dayDate, hour, isEveryWeek);
             });
 
             let rowspan = 1;
@@ -115,6 +116,77 @@ const initTableCells = (weekdays: WeekDay[], events: ScheduleEvent[], openModal:
 
     return rows;
 }
+
+function isEventInRange(startDate: Date, endDate: Date, currentDate: Date, currentHour: number, isEveryWeek: boolean) {
+    let startTimestamp = startDate.getTime();
+    let endTimestamp = endDate.getTime();
+    let currentTimestamp = currentDate.getTime();
+
+    // Check if current date is within the event's start and end dates
+    if (currentTimestamp >= startTimestamp && currentTimestamp <= endTimestamp) {
+        // Check if the current hour is within the event's start and end hours
+        if (currentTimestamp === startTimestamp && currentHour < startDate.getHours()) {
+            // If the current date is the same as the event's start date and the current hour is before the event's start hour
+            return false;
+        }
+        if (currentTimestamp === endTimestamp && currentHour > endDate.getHours()) {
+            // If the current date is the same as the event's end date and the current hour is after the event's end hour
+            return false;
+        }
+        // Otherwise, the event is within the time range
+        return true;
+    }
+
+    // If the current date is outside the event's start and end dates
+    return false;
+}
+
+// function isEventInRange(startDate: Date, endDate: Date, currentDate: Date, currentHour: number, repeatWeek: boolean) {
+//     const startTimestamp = startDate.getTime();
+//     const endTimestamp = endDate.getTime();
+//     const currentTimestamp = currentDate.getTime();
+//
+//     // If repeatWeek is true, check if the current day and time fall within the weekly range
+//     if (repeatWeek) {
+//         // Calculate the difference in milliseconds between the current date and the start date
+//         const timeDiff = currentTimestamp - startTimestamp;
+//
+//         // Calculate the number of milliseconds in a week
+//         const oneWeek = 7 * 24 * 60 * 60 * 1000;
+//
+//         // Adjust the current date to the nearest occurrence of the event based on the start date
+//         const adjustedCurrentTimestamp = startTimestamp + Math.floor(timeDiff / oneWeek) * oneWeek;
+//
+//         // Check if the adjusted current date is within the event's start and end dates
+//         if (adjustedCurrentTimestamp >= startTimestamp && adjustedCurrentTimestamp <= endTimestamp) {
+//             // Check if the current hour is within the event's start and end hours
+//             const adjustedCurrentDate = new Date(adjustedCurrentTimestamp);
+//             if (adjustedCurrentDate.getHours() === currentHour) {
+//                 return true;
+//             }
+//         }
+//
+//         return false;
+//     }
+//
+//     // Check if current date is within the event's start and end dates
+//     if (currentTimestamp >= startTimestamp && currentTimestamp <= endTimestamp) {
+//         // Check if the current hour is within the event's start and end hours
+//         if (currentTimestamp === startTimestamp && currentHour < startDate.getHours()) {
+//             // If the current date is the same as the event's start date and the current hour is before the event's start hour
+//             return false;
+//         }
+//         if (currentTimestamp === endTimestamp && currentHour > endDate.getHours()) {
+//             // If the current date is the same as the event's end date and the current hour is after the event's end hour
+//             return false;
+//         }
+//         // Otherwise, the event is within the time range
+//         return true;
+//     }
+//
+//     // If the current date is outside the event's start and end dates
+//     return false;
+// }
 
 interface WeekInfo {
     weekdays: WeekDay[],
@@ -230,11 +302,18 @@ const EventTable = () => {
             </div>
 
             <div className={cl.tableWrapper}>
-                <Button
-                    onClick={() => moveWeekdays(-7)}
-                >
-                    Previous week
-                </Button>
+                <div className={cl.dayControlWrapper}>
+                    <Button
+                        onClick={() => moveWeekdays(-7)}
+                    >
+                        Previous week
+                    </Button>
+                    <Button
+                        onClick={() => moveWeekdays(-1)}
+                    >
+                        Previous day
+                    </Button>
+                </div>
                 <table>
                     <thead>
                     <tr>
@@ -253,11 +332,18 @@ const EventTable = () => {
                         {rows}
                     </tbody>
                 </table>
-                <Button
-                    onClick={() => moveWeekdays(7)}
-                >
-                    Next week
-                </Button>
+                <div className={cl.dayControlWrapper}>
+                    <Button
+                        onClick={() => moveWeekdays(7)}
+                    >
+                        Next week
+                    </Button>
+                    <Button
+                        onClick={() => moveWeekdays(1)}
+                    >
+                        Next day
+                    </Button>
+                </div>
             </div>
 
             {isModalOpen && addEventProps

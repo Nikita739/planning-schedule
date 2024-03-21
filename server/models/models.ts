@@ -61,15 +61,38 @@ const Event = sequelize.define<IEvent>("event", {
     priority: {type: DataTypes.INTEGER, allowNull: true, defaultValue: 2}
 });
 
+export interface IRepeatWeekly extends Model<InferAttributes<IRepeatWeekly>, InferCreationAttributes<IRepeatWeekly>> {
+    id: CreationOptional<number>;
+    day: number; // [0 1 ... 6] = day indexes, can be retrieved from the date.getDay() function
+    hour: number;
+    eventId: number;
+    userId: number;
+}
+
+const RepeatWeekly = sequelize.define<IRepeatWeekly>("repeatWeekly", {
+    id: {type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true},
+    day: {type: DataTypes.INTEGER},
+    hour: {type: DataTypes.INTEGER},
+    eventId: {type: DataTypes.BIGINT},
+    userId: {type: DataTypes.BIGINT}
+});
+
 User.hasMany(Token);
 Token.belongsTo(User);
 
 User.hasMany(Event);
 Event.belongsTo(User);
 
+User.hasMany(RepeatWeekly);
+RepeatWeekly.belongsTo(User);
+
+Event.hasOne(RepeatWeekly);
+RepeatWeekly.belongsTo(Event);
+
 export default {
     User,
     Token,
     Event,
-    Settings
+    Settings,
+    RepeatWeekly
 };

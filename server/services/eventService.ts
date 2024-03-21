@@ -1,10 +1,10 @@
-import models from "../models/models";
+import models, {IRepeatWeekly} from "../models/models";
 import ApiError from "../exeptions/apiError";
 
-const {Event} = models;
+const {Event, RepeatWeekly} = models;
 
 class EventService {
-    async addEvent(name: string, date: string, userId: number, description?: string, endDate?: string, priority?: 1 | 2 | 3) {
+    async addEvent(name: string, date: string, userId: number, description?: string, endDate?: string, priority?: 1 | 2 | 3, repeat?: "weekly" | "monthly") {
         const eventWithSameDate = await Event.findOne({
             where: {
                 date: date
@@ -18,13 +18,34 @@ class EventService {
         const parsedDate: Date = this.parseDate(date);
         parsedDate.setHours(parsedDate.getHours() + 1);
 
-        return await Event.create({
+        //@ts-ignore
+        const event = await Event.create({
             date: date,
             name: name,
             userId: userId,
             description: description,
             endDate: endDate || parsedDate.toISOString(),
             priority: priority
+        });
+
+        // Repeat event every week
+        if(repeat === "weekly") {
+            const repeatWeekly = await this.repeatEvent(event.id, event.userId, this.parseDate(date));
+        }
+
+        return event;
+    }
+
+    async repeatEvent(eventId: number, userId: number, eventDate: Date): Promise<IRepeatWeekly> {
+        const day = eventDate.getDay();
+        const hour = eventDate.getHours();
+
+        //@ts-ignore
+        return await RepeatWeekly.create({
+            day: day,
+            hour: hour,
+            eventId: eventId,
+            userId: userId
         });
     }
 
@@ -58,6 +79,10 @@ class EventService {
         return await Event.findAll({
             where: {userId: userId}
         });
+    }
+
+    async getRepeatedEvents(userId: number) {
+        return await RepeatWeekly.findAll({where: {userId: userId}});
     }
 
     parseDate(date: string): Date {

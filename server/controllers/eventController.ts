@@ -9,7 +9,8 @@ export interface IEventData {
     date: string;
     description?: string;
     endDate?: string;
-    priority?: 1 | 2 | 3
+    priority?: 1 | 2 | 3;
+    repeat?: "weekly" | "monthly";
 }
 
 export interface IUpdateEventData {
@@ -28,7 +29,7 @@ export interface IDeleteEventData {
 class EventController {
     async addEvent(req: Request, res: Response, next: NextFunction) {
         try {
-            const {name, description, date, endDate, priority}: IEventData = req.body;
+            const {name, description, date, endDate, priority, repeat}: IEventData = req.body;
             RequestService.checkMissingParams({name, date},
                 ["date", "name"]
             );
@@ -37,7 +38,7 @@ class EventController {
                 return next(ApiError.UnauthorizedError());
             }
 
-            const event = await eventService.addEvent(name, date, res.locals.user.id, description, endDate, priority);
+            const event = await eventService.addEvent(name, date, res.locals.user.id, description, endDate, priority, "weekly");
             return res.json(event);
         } catch (e) {
             next(e);
@@ -88,6 +89,21 @@ class EventController {
             return res.json(events);
         }
          catch (e) {
+            next(e);
+        }
+    }
+
+    async getRepeatedEvents(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = res.locals.user.id;
+
+            if(!userId) {
+                next(ApiError.UnauthorizedError());
+            }
+
+            const repeatedEvents = await eventService.getRepeatedEvents(userId);
+            return res.json(repeatedEvents);
+        } catch (e) {
             next(e);
         }
     }
